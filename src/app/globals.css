@@ -1,26 +1,127 @@
 @import "tailwindcss";
 
+/* CurveOdds reads like an odds board: warm charcoal, paper text, one amber
+   signal colour for odds and progress. Everything numeric is monospaced. */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #12110f;
+  --panel: #191815;
+  --panel-2: #201e1a;
+  --line: #2c2a25;
+  --line-strong: #3a3731;
+  --text: #ece7dc;
+  --dim: #8f897c;
+  --faint: #5d584f;
+  --amber: #f2b544;
+  --amber-dim: #7a5c24;
+  --yes: #f2b544;
+  --no: #9aa3ad;
+  --bad: #e0715a;
+  --good: #9ccf7a;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-bg: var(--bg);
+  --color-panel: var(--panel);
+  --color-panel-2: var(--panel-2);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-text: var(--text);
+  --color-dim: var(--dim);
+  --color-faint: var(--faint);
+  --color-amber: var(--amber);
+  --color-amber-dim: var(--amber-dim);
+  --color-no: var(--no);
+  --color-bad: var(--bad);
+  --color-good: var(--good);
+  --font-sans: var(--font-plex-sans);
+  --font-mono: var(--font-plex-mono);
+  --font-serif: var(--font-instrument);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html,
+body {
+  background: var(--bg);
+  color: var(--text);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-plex-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--amber);
+  color: var(--bg);
+}
+
+.num {
+  font-family: var(--font-plex-mono), ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+.label {
+  font-family: var(--font-plex-mono), ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+
+input,
+textarea {
+  background: var(--bg);
+  border: 1px solid var(--line-strong);
+  color: var(--text);
+  outline: none;
+}
+input:focus,
+textarea:focus {
+  border-color: var(--amber);
+}
+
+/* Wallet adapter: pull the stock purple modal into the board palette. */
+.wallet-adapter-button {
+  font-family: var(--font-plex-mono), ui-monospace, monospace !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  height: 36px !important;
+  padding: 0 14px !important;
+  border-radius: 2px !important;
+  background: transparent !important;
+  border: 1px solid var(--line-strong) !important;
+  color: var(--text) !important;
+}
+.wallet-adapter-button:not([disabled]):hover {
+  border-color: var(--amber) !important;
+  color: var(--amber) !important;
+}
+.wallet-adapter-button-start-icon {
+  display: none !important;
+}
+.wallet-adapter-modal-wrapper {
+  background: var(--panel) !important;
+  border: 1px solid var(--line-strong) !important;
+  border-radius: 2px !important;
+  font-family: var(--font-plex-sans), system-ui, sans-serif !important;
+}
+.wallet-adapter-modal-title {
+  color: var(--text) !important;
+  font-weight: 500 !important;
+}
+.wallet-adapter-modal-list .wallet-adapter-button {
+  border: 0 !important;
+  border-top: 1px solid var(--line) !important;
+  height: 52px !important;
+}
+.wallet-adapter-dropdown-list {
+  background: var(--panel) !important;
+  border: 1px solid var(--line-strong) !important;
+  border-radius: 2px !important;
+}
+.wallet-adapter-dropdown-list-item {
+  font-family: var(--font-plex-mono), ui-monospace, monospace !important;
+  border-radius: 0 !important;
+}
+.wallet-adapter-dropdown-list-item:hover {
+  background: var(--panel-2) !important;
 }
