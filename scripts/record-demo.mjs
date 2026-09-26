@@ -1,7 +1,7 @@
 // Records the CurveOdds product demo with captions drawn into the page.
 //   node record.mjs <baseUrl> <outDir> [rpc]
 import { chromium } from "playwright";
-import { Connection, Keypair, LAMPORTS_PER_SOL } from "@solana/web3.js";
+import { Connection, Keypair, LAMPORTS_PER_SOL, SystemProgram, Transaction, sendAndConfirmTransaction } from "@solana/web3.js";
 import fs from "node:fs";
 import path from "node:path";
 
@@ -71,7 +71,18 @@ async function main() {
   fs.mkdirSync(OUT, { recursive: true });
   const conn = new Connection(RPC, "confirmed");
   const kp = Keypair.generate();
-  await conn.confirmTransaction(await conn.requestAirdrop(kp.publicKey, 5 * LAMPORTS_PER_SOL), "confirmed");
+  // FUNDER (a keypair file) pays for the demo wallet on devnet, where the
+  // public faucet is dry; localnet just airdrops.
+  const funder = process.env.FUNDER
+    ? Keypair.fromSecretKey(Uint8Array.from(JSON.parse(fs.readFileSync(process.env.FUNDER, "utf8"))))
+    : null;
+  if (funder) {
+    await sendAndConfirmTransaction(conn, new Transaction().add(
+      SystemProgram.transfer({ fromPubkey: funder.publicKey, toPubkey: kp.publicKey, lamports: 0.25 * LAMPORTS_PER_SOL }),
+    ), [funder]);
+  } else {
+    await conn.confirmTransaction(await conn.requestAirdrop(kp.publicKey, 5 * LAMPORTS_PER_SOL), "confirmed");
+  }
 
   const browser = await chromium.launch();
   const ctx = await browser.newContext({
@@ -134,7 +145,7 @@ async function main() {
   await page.mouse.wheel(0, -2000);
   await wait(800);
   await caption(page, "Trading happens on the DBC pool itself. Quotes come from the DBC SDK; the last buy on a nearly full curve is capped, not failed.");
-  await page.locator("input[inputmode=decimal]").first().fill("0.5");
+  await page.locator("input[inputmode=decimal]").first().fill(process.env.BUY ?? "0.5");
   await wait(2600);
   await page.getByRole("button", { name: /Buy \$PHC/ }).click();
   await page.waitForSelector("text=Bought.", { timeout: 30000 });
@@ -171,6 +182,12 @@ async function main() {
   const video = page.video();
   await ctx.close();
   await browser.close();
+  if (funder) {
+    const left = (await conn.getBalance(kp.publicKey)) - 5000;
+    if (left > 0) await sendAndConfirmTransaction(conn, new Transaction().add(
+      SystemProgram.transfer({ fromPubkey: kp.publicKey, toPubkey: funder.publicKey, lamports: left }),
+    ), [kp]);
+  }
   const src = await video.path();
   const dst = path.join(OUT, "curveodds-demo.webm");
   fs.renameSync(src, dst);
