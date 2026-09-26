@@ -31,7 +31,12 @@ export function dbc() {
 
 export function platformConfig(): { config: string; platform: string } {
   const file = path.join(process.cwd(), "config", `${CLUSTER}.json`);
+  if (!fs.existsSync(file)) throw new Error(`launchpad is not configured on ${CLUSTER} yet`);
   return JSON.parse(fs.readFileSync(file, "utf8"));
+}
+
+export function isConfigured() {
+  return fs.existsSync(path.join(process.cwd(), "config", `${CLUSTER}.json`));
 }
 
 let _configCache: { at: number; value: PoolConfig } | null = null;
@@ -96,6 +101,7 @@ export function toView(
 }
 
 export async function listLaunches(): Promise<LaunchView[]> {
+  if (!isConfigured()) return [];
   const [cfg, pools] = await Promise.all([
     configState(),
     dbc().state.getPoolsByConfig(platformConfig().config),
@@ -110,6 +116,7 @@ export async function listLaunches(): Promise<LaunchView[]> {
 }
 
 export async function getLaunchView(mint: string): Promise<LaunchView | null> {
+  if (!isConfigured()) return null;
   const pool = poolAddressFor(mint);
   const [cfg, state] = await Promise.all([configState(), dbc().state.getPool(pool)]);
   if (!state) return null;
