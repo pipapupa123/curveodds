@@ -1,0 +1,22 @@
+[Unit]
+Description=CurveOdds (Next.js standalone)
+After=network.target
+
+[Service]
+Type=simple
+User=curveodds
+Group=curveodds
+WorkingDirectory=/opt/curveodds/app
+EnvironmentFile=/opt/curveodds/env
+ExecStart=/usr/bin/node server.js
+Restart=always
+RestartSec=3
+
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/curveodds
+
+[Install]
+WantedBy=multi-user.target

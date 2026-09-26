@@ -11,6 +11,10 @@ A bonding curve tells you a token's price. It never told you the odds. Most laun
 
 Built for Colosseum Crypto World's Fair: *Best use of Meteora DBC* and the *Panta API sidetrack*.
 
+- **Live (devnet):** https://curveodds.91-184-240-212.sslip.io
+- **Demo video (83 s):** https://curveodds.91-184-240-212.sslip.io/curveodds-demo.mp4
+- **Pitch deck:** https://curveodds.91-184-240-212.sslip.io/deck ([PDF](https://curveodds.91-184-240-212.sslip.io/curveodds-deck.pdf))
+
 ## Why this is a DBC use case, not a skin
 
 Every CurveOdds launch uses one partner config built for launches that people will bet on:
@@ -108,6 +112,8 @@ NEXT_PUBLIC_CLUSTER=devnet npm run dev
 ```
 
 **Mainnet:** same with `mainnet`, a funded platform wallet, a keyed `RPC_URL` (the board uses `getProgramAccounts`) and `PANTA_API_KEY`.
+
+**Deploy** (standalone Next.js behind Caddy, systemd, dedicated user): `deploy/bootstrap.sh` once, then `CLUSTER=devnet ./deploy/deploy.sh`.
 
 ## Status
 

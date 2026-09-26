@@ -47,3 +47,4 @@ next-env.d.ts
 /data/
 /localnet/ledger/
 /localnet/programs/
+/.next-prod/
