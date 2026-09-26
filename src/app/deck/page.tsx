@@ -72,7 +72,7 @@ export default function Deck() {
         <div className="mt-8 grid gap-px border border-line bg-line text-[clamp(12px,1.25vw,16px)] md:grid-cols-2">
           {[
             ["Anti-snipe fee", "Exponential scheduler, 5% → 1% over ten minutes, plus dynamic fee."],
-            ["Creator share", "50% of trading fees. Pays back the market after ~10k USDC volume."],
+            ["Creator share", "50% of trading fees. Pays back the 20 USDC market after ~4k USDC volume."],
             ["Locked liquidity", "100% of graduated LP permanently locked, split creator / platform."],
             ["Immutable token", "Fixed 1B supply, mint and metadata locked at creation."],
             ["USDC quote on mainnet", "Fees accrue in the currency Panta markets settle in."],

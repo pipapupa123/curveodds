@@ -50,9 +50,10 @@ export default function HowPage() {
         <div>
           <h3 className="label mb-3">Why the creator pays for the market</h3>
           <p className="leading-relaxed text-dim">
-            Opening a market costs 50 USDC. That is a small, visible cost only a creator who expects to fill
-            the curve will pay, and ten of those dollars become the market&apos;s starting liquidity. At the 1%
-            fee with half going to the creator, the launch pays it back after about 10,000 USDC of volume.
+            Opening a market costs a fee set on-chain by Panta, currently 20 USDC. That is a small, visible cost
+            only a creator who expects to fill the curve will pay, and 5 of those dollars become the market&apos;s
+            starting liquidity. At the 1% fee with half going to the creator, the launch pays it back after about
+            4,000 USDC of volume.
           </p>
         </div>
         <div>

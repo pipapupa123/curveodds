@@ -23,7 +23,7 @@ Every CurveOdds launch uses one partner config built for launches that people wi
 |---|---|---|
 | Base fee | Exponential fee scheduler, **5% → 1% over 10 minutes** (20 periods) | First-block snipers pay for the privilege; normal buyers don't. |
 | Dynamic fee | On | Volatility spikes cost more while they last. |
-| Creator trading fee | **50%** of the trading fee | Pays back the creator's market. At 1%, a launch recoups the 50 USDC market fee after ~10,000 USDC of volume. |
+| Creator trading fee | **50%** of the trading fee | Pays back the creator's market. At 1%, a launch recoups the 20 USDC market fee after ~4,000 USDC of volume. |
 | Graduated LP | **100% permanently locked**, 50% creator / 50% partner | A market on "will it graduate" only means something if graduation can't be followed by a liquidity pull. |
 | Token authority | Immutable | No mint, no metadata swaps after launch. |
 | Supply | 1B fixed, 20% of supply seeds the DAMM v2 pool | |
@@ -61,7 +61,7 @@ The market spec comes from the pool itself ([`graduationSpec`](src/lib/server/pa
 - **Sources of truth:** the pool account on Solscan and the CurveOdds token page.
 - **Type:** `breaking` with `eventInProgress`, because the launch is already live when the market opens and Panta's one-hour start delay would hide the most informative hour.
 
-Opening a market costs 50 USDC on Panta (40 platform fee, 10 seeded as the market's liquidity). Panta markets are mainnet-only; on devnet and localnet the token page shows the exact market a launch would get, but doesn't open it.
+Opening a market costs a fee set in Panta's on-chain config, 20 USDC at the time of writing (15 platform fee, 5 seeded as the market's liquidity). Panta markets are mainnet-only; on devnet and localnet the token page shows the exact market a launch would get, but doesn't open it.
 
 ## Architecture
 

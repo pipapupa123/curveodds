@@ -152,7 +152,7 @@ export default function MarketPanel({
               disabled={busy}
               className="w-full bg-amber py-2.5 text-sm font-medium text-bg hover:brightness-110 disabled:opacity-40"
             >
-              {!wallet.publicKey ? "Connect wallet" : busy ? "Confirm in wallet…" : "Open market · 50 USDC"}
+              {!wallet.publicKey ? "Connect wallet" : busy ? "Confirm in wallet…" : "Open market"}
             </button>
           ) : (
             <p className="label !normal-case !tracking-normal border border-line p-3 !text-dim">
@@ -161,7 +161,7 @@ export default function MarketPanel({
             </p>
           )}
           <p className="text-[11px] leading-relaxed text-faint">
-            Opening costs 50 USDC: 40 to Panta, 10 seeded into the market&apos;s liquidity.
+            Opening costs a one-time fee set by Panta, currently 20 USDC: 15 to Panta, 5 seeded into the market&apos;s liquidity. Your wallet shows the exact amount before you sign.
           </p>
         </div>
       ) : (

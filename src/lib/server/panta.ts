@@ -70,7 +70,7 @@ export const listMarkets = (q: { category?: string; status?: string; limit?: num
   if (q.category) qs.set("category", q.category);
   if (q.status) qs.set("status", q.status);
   qs.set("limit", String(q.limit ?? 20));
-  return call<{ results?: PantaMarket[]; items?: PantaMarket[] } | PantaMarket[]>(
+  return call<{ items?: PantaMarket[]; results?: PantaMarket[]; nextCursor?: string } | PantaMarket[]>(
     "GET",
     `/markets/?${qs}`,
   );
@@ -122,12 +122,21 @@ export async function quoteGraduationMarket(l: LaunchView, wallet: string, image
   return { spec, quote };
 }
 
-export const buildMarketCreate = (createId: string, wallet: string) =>
-  call<{ transaction: string; expectedEventPda: string; paymentUsdc: string }>(
+// A pk_test key talks to Panta's sandbox, which answers with fixtures and
+// empty transactions. Say so instead of failing to decode.
+function assertLive(ok: boolean) {
+  if (!ok) throw new PantaError("SANDBOX_KEY", 503, "Panta test keys return sandbox fixtures; use a pk_live key");
+}
+
+export async function buildMarketCreate(createId: string, wallet: string) {
+  const r = await call<{ transaction: string; expectedEventPda: string; paymentUsdc: string }>(
     "POST",
     "/markets/create/build/",
     { createId, wallet },
   );
+  assertLive(Boolean(r.transaction));
+  return r;
+}
 
 export const registerMarket = (createId: string, signature: string) =>
   call<{ marketId: string; status: string }>("POST", "/markets/register/", { createId, signature });
@@ -154,6 +163,7 @@ export async function buildBuy(quoteId: string, wallet: string, maxSlippageBps =
     recentBlockhash: string;
     expectedShares: string;
   }>("POST", "/primaryorderbuild/", { quoteId, wallet, maxSlippageBps, userId: "curveodds" });
+  assertLive(r.instructions.length > 0 && !r.recentBlockhash.startsWith("Sandbox"));
   const ixs = r.instructions.map(
     (i) =>
       new TransactionInstruction({
