@@ -41,7 +41,15 @@ async function call<T>(method: "GET" | "POST", path: string, body?: unknown): Pr
   });
   const text = await res.text();
   const json = text ? JSON.parse(text) : {};
-  if (!res.ok) throw new PantaError(json.code ?? "HTTP_ERROR", res.status, json.fields);
+  if (!res.ok) {
+    // Panta allows one open create session per account; a second quote inside
+    // its ~5 minute lifetime comes back as a generic INVALID_MARKET_PARAMS.
+    const code =
+      json.code === "INVALID_MARKET_PARAMS" && /unexpected create quote failure/.test(json.message ?? "")
+        ? "CREATE_SESSION_BUSY"
+        : (json.code ?? "HTTP_ERROR");
+    throw new PantaError(code, res.status, json.fields);
+  }
   return json as T;
 }
 
