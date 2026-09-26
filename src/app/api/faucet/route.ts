@@ -36,7 +36,7 @@ export async function POST(req: Request) {
       const file = path.join(process.cwd(), ".keys", `platform-${CLUSTER}.json`);
       const platform = Keypair.fromSecretKey(Uint8Array.from(JSON.parse(fs.readFileSync(file, "utf8"))));
       const tx = new Transaction().add(
-        SystemProgram.transfer({ fromPubkey: platform.publicKey, toPubkey: to, lamports: 0.5 * LAMPORTS_PER_SOL }),
+        SystemProgram.transfer({ fromPubkey: platform.publicKey, toPubkey: to, lamports: 0.25 * LAMPORTS_PER_SOL }),
       );
       signature = await sendAndConfirmTransaction(conn, tx, [platform]);
     }

@@ -54,12 +54,24 @@ async function main() {
   const funder = process.env.FUNDER
     ? Keypair.fromSecretKey(Uint8Array.from(JSON.parse(fs.readFileSync(process.env.FUNDER, "utf8"))))
     : null;
-  const buyers = Array.from({ length: 4 }, () => Keypair.generate());
-  for (const b of buyers) await fund(conn, b, funder ? 2 : 10, funder);
+  // Demo wallets are written to disk so unspent SOL can be recovered even if
+  // the run dies halfway (devnet SOL is scarce).
+  const walletFile = path.join(__dirname, "..", ".keys", `seed-wallets-${Date.now()}.json`);
+  const keep: number[][] = [];
+  const remember = (kp: Keypair) => {
+    keep.push(Array.from(kp.secretKey));
+    fs.mkdirSync(path.dirname(walletFile), { recursive: true });
+    fs.writeFileSync(walletFile, JSON.stringify(keep), { mode: 0o600 });
+    return kp;
+  };
+  const buyers = Array.from({ length: 4 }, () => remember(Keypair.generate()));
+  for (const b of buyers) await fund(conn, b, funder ? Number(process.env.BUYER_SOL ?? 0.75) : 10, funder);
 
+  const creators: Keypair[] = [];
   for (const l of LAUNCHES) {
-    const creator = Keypair.generate();
-    await fund(conn, creator, funder ? 0.1 : 2, funder);
+    const creator = remember(Keypair.generate());
+    await fund(conn, creator, funder ? 0.06 : 2, funder);
+    creators.push(creator);
     const mint = Keypair.generate();
     const image = `data:image/png;base64,${fs.readFileSync(path.join(ART, `${l.art}.png`)).toString("base64")}`;
     const prep = await post("/api/launch/prepare", {
@@ -80,8 +92,12 @@ async function main() {
       const remaining = l.target * v.threshold - v.raised;
       if (v.status !== "bonding" || (l.target < 1 && remaining <= 0.01)) break;
       // Full curves need one last partial-fill buy past the threshold.
-      const clip = Math.max(l.target >= 1 ? 0.2 : 0, Math.min(remaining / 0.95, [0.35, 0.8, 0.5, 1.2, 0.25][i % 5]));
-      const buyer = buyers[i % buyers.length];
+      // Clip sizes scale with the curve so the same script fits 1 SOL and 5 SOL thresholds.
+      const unit = v.threshold / 5;
+      const clip = Math.max(l.target >= 1 ? 0.04 * v.threshold : 0, Math.min(remaining / 0.95, [0.35, 0.8, 0.5, 1.2, 0.25][i % 5] * unit));
+      // Next buyer that can afford the clip.
+      let buyer = buyers[i % buyers.length];
+      for (const b of buyers) if ((await conn.getBalance(b.publicKey)) / LAMPORTS_PER_SOL > clip + 0.01) { buyer = b; break; }
       const b = await post("/api/swap/build", {
         mint: mint.publicKey.toBase58(),
         owner: buyer.publicKey.toBase58(),
@@ -94,6 +110,20 @@ async function main() {
     }
     const v = await (await fetch(`${BASE}/api/launches/${mint.publicKey.toBase58()}`)).json();
     console.log(`${l.symbol.padEnd(6)} ${(v.progress * 100).toFixed(1).padStart(5)}%  ${v.status}  ${mint.publicKey.toBase58()}`);
+  }
+
+  // Return what the demo wallets did not spend.
+  if (funder) {
+    for (const kp of [...buyers, ...creators]) {
+      const bal = await conn.getBalance(kp.publicKey);
+      const lamports = bal - 5000;
+      if (lamports <= 0) continue;
+      const tx = new Transaction().add(
+        SystemProgram.transfer({ fromPubkey: kp.publicKey, toPubkey: funder.publicKey, lamports }),
+      );
+      await sendAndConfirmTransaction(conn, tx, [kp]).catch(() => undefined);
+    }
+    console.log("funder balance:", (await conn.getBalance(funder.publicKey)) / LAMPORTS_PER_SOL, "SOL");
   }
 }
 

@@ -36,7 +36,9 @@ const SOL_QUOTE = {
 
 export const QUOTE = {
   localnet: SOL_QUOTE,
-  devnet: SOL_QUOTE,
+  // Devnet SOL is scarce (the public faucet is rate-limited), so the public
+  // demo graduates at 1 SOL: a visitor with faucet SOL can fill a curve.
+  devnet: { ...SOL_QUOTE, migrationQuoteThreshold: 1 },
   mainnet: {
     mint: "EPjFWdd5AufqSSqeM2qFxEfFFt7jV8r4wBpbXxiUtz1v",
     symbol: "USDC",

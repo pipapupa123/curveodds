@@ -28,7 +28,7 @@ Every CurveOdds launch uses one partner config built for launches that people wi
 | Token authority | Immutable | No mint, no metadata swaps after launch. |
 | Supply | 1B fixed, 20% of supply seeds the DAMM v2 pool | |
 | Quote token | SOL on devnet/localnet, **USDC on mainnet** | USDC-quoted launches produce USDC fees, the same currency Panta markets settle in. |
-| Migration threshold | 5 SOL (test networks) / 5,000 USDC (mainnet) | Test value is low enough to walk a launch to graduation in a demo. |
+| Migration threshold | 5 SOL localnet, 1 SOL devnet, 5,000 USDC mainnet | Test values are low enough to walk a launch to graduation in a demo with faucet SOL. |
 
 See [`src/lib/curve.ts`](src/lib/curve.ts).
 
